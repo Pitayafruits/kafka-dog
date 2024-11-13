@@ -1,4 +1,3 @@
-// KafkaConnection.java
 package com.pitayafruit.kafkadog.model;
 
 public class KafkaConnection {
@@ -6,6 +5,8 @@ public class KafkaConnection {
     private String host;
     private int port;
     private String id;
+
+    public KafkaConnection() {}
 
     public KafkaConnection(String name, String host, int port) {
         this.name = name;
