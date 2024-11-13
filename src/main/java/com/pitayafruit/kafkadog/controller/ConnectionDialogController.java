@@ -23,10 +23,19 @@ public class ConnectionDialogController {
     @FXML private Button cancelButton;
 
     private MainController mainController;
+    private KafkaConnection existingConnection;
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
+
+    public void setConnection(KafkaConnection connection) {
+        this.existingConnection = connection;
+        nameField.setText(connection.getName());
+        hostField.setText(connection.getHost());
+        portField.setText(String.valueOf(connection.getPort()));
+    }
+
 
     @FXML
     private void testConnection() {
@@ -83,9 +92,20 @@ public class ConnectionDialogController {
             }
 
             int port = Integer.parseInt(portText);
-            KafkaConnection connection = new KafkaConnection(name, host, port);
-            mainController.addConnection(connection);
+            KafkaConnection connection;
 
+            if (existingConnection != null) {
+                // 编辑现有连接
+                existingConnection.setName(name);
+                existingConnection.setHost(host);
+                existingConnection.setPort(port);
+                connection = existingConnection;
+            } else {
+                // 创建新连接
+                connection = new KafkaConnection(name, host, port);
+            }
+
+            mainController.addConnection(connection);
             closeDialog();
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "错误", "端口号格式不正确");
