@@ -11,9 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.time.Duration;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -24,6 +23,11 @@ import org.apache.kafka.common.KafkaFuture;
 import javafx.application.Platform;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.TreeItem;
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import javafx.scene.control.ListView;
+import com.pitayafruit.kafkadog.model.KafkaMessage;
 
 
 public class MainController {
@@ -32,9 +36,14 @@ public class MainController {
     @FXML
     private TreeView<String> topicListView;
     @FXML
-    private ListView<String> messageListView;
+    private ListView<KafkaMessage> messageListView;
 
     private AdminClient currentAdminClient;
+
+    private KafkaConsumer<String, String> consumer;
+    private ObservableList<KafkaMessage> messages = FXCollections.observableArrayList();
+    private String currentTopic;
+    private int currentPartition = -1;
 
     private ObservableList<KafkaConnection> connections = FXCollections.observableArrayList();
 
@@ -53,7 +62,146 @@ public class MainController {
                     }
                 }
         );
+
+        // 设置消息列表及其样式
+        messageListView.setItems(messages);
+        // 添加这两行来设置空列表时的提示
+        Label placeholderLabel = new Label("该分区暂无消息");
+        placeholderLabel.setStyle("-fx-text-fill: #808080; -fx-font-size: 14px;");
+        messageListView.setPlaceholder(placeholderLabel);
+        messageListView.setCellFactory(listView -> new ListCell<KafkaMessage>() {
+            @Override
+            protected void updateItem(KafkaMessage item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item.toString());
+                    // 设置样式
+                    if (item.isConsumed()) {
+                        setStyle("-fx-text-fill: #808080;");
+                    } else {
+                        setStyle("-fx-text-fill: #000000; -fx-font-weight: bold;");
+                    }
+                }
+            }
+        });
+
+        // 添加主题树选择事件
+        topicListView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null && newValue.getValue() != null) {
+                        TreeItem<String> item = newValue;
+                        if (item.getParent() != null && !item.getParent().getValue().equals("Topics")) {
+                            // 选中了分区项
+                            String partitionInfo = item.getValue();
+                            if (partitionInfo.startsWith("Partition-")) {
+                                currentTopic = item.getParent().getValue();
+                                currentPartition = Integer.parseInt(
+                                        partitionInfo.substring("Partition-".length()).split(" ")[0]
+                                );
+                                loadMessages();
+                            }
+                        }
+                    }
+                }
+        );
+
+        // 获取当前Stage并添加关闭事件处理
+        Platform.runLater(() -> {
+            Stage stage = (Stage) connectionListView.getScene().getWindow();
+            stage.setOnCloseRequest(event -> cleanup());
+        });
     }
+
+    private void loadMessages() {
+        if (currentTopic == null || currentPartition == -1) return;
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                initializeConsumer();
+                TopicPartition partition = new TopicPartition(currentTopic, currentPartition);
+                consumer.assign(Collections.singletonList(partition));
+
+                // 获取分区的结束位置
+                Map<TopicPartition, Long> endOffsets = consumer.endOffsets(Collections.singletonList(partition));
+                long endOffset = endOffsets.get(partition);
+
+                // 获取消费者组的已消费位置
+                Map<TopicPartition, OffsetAndMetadata> committedOffsets =
+                        consumer.committed(Collections.singleton(partition));
+                long committedOffset = committedOffsets.get(partition) != null ?
+                        committedOffsets.get(partition).offset() : 0;
+
+                // 从头开始读取
+                consumer.seekToBeginning(Collections.singletonList(partition));
+
+                List<KafkaMessage> messageList = new ArrayList<>();
+                while (true) {
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                    if (records.isEmpty()) break;
+
+                    for (ConsumerRecord<String, String> record : records) {
+                        boolean isConsumed = record.offset() < committedOffset;
+                        KafkaMessage message = new KafkaMessage(
+                                record.offset(),
+                                record.key(),
+                                record.value(),
+                                record.timestamp(),
+                                isConsumed,
+                                String.format("%s-%d", currentTopic, currentPartition)
+                        );
+                        messageList.add(message);
+                    }
+                }
+
+                // 按时间戳降序排序
+                messageList.sort((m1, m2) -> Long.compare(m2.getTimestamp(), m1.getTimestamp()));
+
+                Platform.runLater(() -> {
+                    messages.clear();
+                    messages.addAll(messageList);
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    showAlert(Alert.AlertType.ERROR, "错误",
+                            "加载消息失败: " + e.getMessage());
+                });
+            }
+        });
+    }
+
+    // 添加资源清理方法
+    public void cleanup() {
+        if (consumer != null) {
+            consumer.close();
+        }
+        if (currentAdminClient != null) {
+            currentAdminClient.close();
+        }
+    }
+
+    private void initializeConsumer() {
+        if (consumer != null) {
+            consumer.close();
+        }
+        KafkaConnection connection = connectionListView.getSelectionModel().getSelectedItem();
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                connection.getHost() + ":" + connection.getPort());
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "kafka-dog-viewer");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class.getName());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+
+        consumer = new KafkaConsumer<>(props);
+    }
+
 
     private void loadTopics(KafkaConnection connection) {
         // 关闭之前的连接
