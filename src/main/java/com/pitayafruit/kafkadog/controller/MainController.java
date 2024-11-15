@@ -11,15 +11,30 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.common.KafkaFuture;
+import javafx.application.Platform;
+import javafx.scene.control.TreeView;
+import javafx.scene.control.TreeItem;
+
 
 public class MainController {
     @FXML
     private ListView<KafkaConnection> connectionListView;
     @FXML
-    private ListView<String> topicListView;
+    private TreeView<String> topicListView;
     @FXML
     private ListView<String> messageListView;
+
+    private AdminClient currentAdminClient;
 
     private ObservableList<KafkaConnection> connections = FXCollections.observableArrayList();
 
@@ -29,6 +44,86 @@ public class MainController {
         connections.addAll(ConnectionManager.loadConnections());
         connectionListView.setItems(connections);
         setupContextMenu();
+
+        // 添加连接选择事件监听
+        connectionListView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        loadTopics(newValue);
+                    }
+                }
+        );
+    }
+
+    private void loadTopics(KafkaConnection connection) {
+        // 关闭之前的连接
+        if (currentAdminClient != null) {
+            currentAdminClient.close();
+        }
+
+        // 创建新的连接
+        Properties props = new Properties();
+        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
+                connection.getHost() + ":" + connection.getPort());
+
+        currentAdminClient = AdminClient.create(props);
+
+        // 清空现有主题列表
+        TreeItem<String> root = new TreeItem<>("Topics");
+        topicListView.setRoot(root);
+        root.setExpanded(true);
+
+        // 异步加载主题信息
+        CompletableFuture.runAsync(() -> {
+            try {
+                // 获取所有主题
+                KafkaFuture<Map<String, TopicDescription>> topicsFuture =
+                        currentAdminClient.describeTopics(
+                                currentAdminClient.listTopics().names().get()
+                        ).all();
+
+                Map<String, TopicDescription> topics = topicsFuture.get();
+
+                // 在 JavaFX 线程中更新 UI
+                Platform.runLater(() -> {
+                    topics.forEach((topicName, description) -> {
+                        TreeItem<String> topicItem = new TreeItem<>(topicName);
+                        root.getChildren().add(topicItem);
+
+                        // 添加分区信息
+                        description.partitions().forEach(partition -> {
+                            String partitionInfo = String.format(
+                                    "Partition-%d (Leader: %d, Replicas: %s)",
+                                    partition.partition(),
+                                    partition.leader().id(),
+                                    partition.replicas().stream()
+                                            .map(node -> String.valueOf(node.id()))
+                                            .collect(Collectors.joining(","))
+                            );
+                            topicItem.getChildren().add(new TreeItem<>(partitionInfo));
+                        });
+                    });
+
+                    // 按主题名称排序
+                    root.getChildren().sort((a, b) ->
+                            a.getValue().compareTo(b.getValue())
+                    );
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    showAlert(Alert.AlertType.ERROR, "错误",
+                            "加载主题失败: " + e.getMessage());
+                });
+            }
+        });
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     private void setupContextMenu() {

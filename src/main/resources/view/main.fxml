@@ -15,7 +15,7 @@
     </left>
     <center>
         <SplitPane orientation="VERTICAL">
-            <ListView fx:id="topicListView"/>
+            <TreeView fx:id="topicListView"/>
             <ListView fx:id="messageListView"/>
         </SplitPane>
     </center>
