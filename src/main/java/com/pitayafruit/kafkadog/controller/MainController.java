@@ -30,7 +30,8 @@ import javafx.scene.control.ListView;
 import com.pitayafruit.kafkadog.model.KafkaMessage;
 
 /**
- * 主界面控制器类，负责管理Kafka连接、主题显示和消息查看
+ * 主界面控制器类
+ * 负责管理Kafka连接、主题显示和消息查看
  */
 public class MainController {
     // UI组件注入
