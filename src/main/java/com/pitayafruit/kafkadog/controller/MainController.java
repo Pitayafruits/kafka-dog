@@ -1,7 +1,7 @@
 package com.pitayafruit.kafkadog.controller;
 
 import com.pitayafruit.kafkadog.model.KafkaConnection;
-import com.pitayafruit.kafkadog.service.ConnectionManager;
+import com.pitayafruit.kafkadog.service.ConnectionService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -50,7 +50,7 @@ public class MainController {
     @FXML
     public void initialize() {
         // 加载保存的连接
-        connections.addAll(ConnectionManager.loadConnections());
+        connections.addAll(ConnectionService.loadConnections());
         connectionListView.setItems(connections);
         setupContextMenu();
 
@@ -332,13 +332,13 @@ public class MainController {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 connections.remove(selected);
-                ConnectionManager.deleteConnection(selected);
+                ConnectionService.deleteConnection(selected);
             }
         }
     }
 
     public void addConnection(KafkaConnection connection) {
-        ConnectionManager.saveConnection(connection);
+        ConnectionService.saveConnection(connection);
 
         // 如果是编辑现有连接，先移除旧的
         connections.removeIf(c -> c.getId() != null && c.getId().equals(connection.getId()));
