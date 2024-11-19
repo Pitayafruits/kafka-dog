@@ -2,7 +2,6 @@ package com.pitayafruit.kafkadog.model;
 
 /**
  * Kafka消息实体类
- * 用于存储Kafka消息的详细信息
  */
 public class KafkaMessage {
 
