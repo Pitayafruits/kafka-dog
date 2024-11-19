@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-public class ConnectionManager {
+public class ConnectionService {
 
     private static final String CONNECTIONS_FILE = "connections.json";
     private static final ObjectMapper mapper = new ObjectMapper();
