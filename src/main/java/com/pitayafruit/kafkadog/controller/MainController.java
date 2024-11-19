@@ -286,7 +286,6 @@ public class MainController {
         });
     }
 
-    // 以下是辅助方法
 
     /**
      * 显示警告对话框
