@@ -1,3 +1,7 @@
+/**
+ * Kafka连接配置对话框控制器
+ * 负责处理连接配置的添加、编辑和测试功能
+ */
 package com.pitayafruit.kafkadog.controller;
 
 import com.pitayafruit.kafkadog.model.KafkaConnection;
@@ -15,20 +19,30 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ConnectionDialogController {
-    @FXML private TextField nameField;
-    @FXML private TextField hostField;
-    @FXML private TextField portField;
-    @FXML private Button testButton;
-    @FXML private Button saveButton;
-    @FXML private Button cancelButton;
+    /**
+     * FXML注入的UI组件
+     */
+    @FXML private TextField nameField;    // 连接名称输入框
+    @FXML private TextField hostField;    // 主机地址输入框
+    @FXML private TextField portField;    // 端口号输入框
+    @FXML private Button testButton;      // 测试连接按钮
+    @FXML private Button saveButton;      // 保存按钮
+    @FXML private Button cancelButton;    // 取消按钮
 
-    private MainController mainController;
-    private KafkaConnection existingConnection;
+    private MainController mainController;         // 主控制器引用
+    private KafkaConnection existingConnection;    // 当前编辑的已存在连接
 
+    /**
+     * 设置主控制器引用
+     */
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
 
+    /**
+     * 设置要编辑的现有连接
+     * @param connection 现有连接对象
+     */
     public void setConnection(KafkaConnection connection) {
         this.existingConnection = connection;
         nameField.setText(connection.getName());
@@ -36,7 +50,10 @@ public class ConnectionDialogController {
         portField.setText(String.valueOf(connection.getPort()));
     }
 
-
+    /**
+     * 测试Kafka连接
+     * 异步执行连接测试，避免阻塞UI线程
+     */
     @FXML
     private void testConnection() {
         String host = hostField.getText();
@@ -79,6 +96,9 @@ public class ConnectionDialogController {
         }, Platform::runLater);
     }
 
+    /**
+     * 保存连接配置
+     */
     @FXML
     private void saveConnection() {
         try {
@@ -114,15 +134,27 @@ public class ConnectionDialogController {
         }
     }
 
+    /**
+     * 取消操作
+     */
     @FXML
     private void cancel() {
         closeDialog();
     }
 
+    /**
+     * 关闭对话框
+     */
     private void closeDialog() {
         ((Stage) nameField.getScene().getWindow()).close();
     }
 
+    /**
+     * 显示警告对话框
+     * @param type 警告类型
+     * @param title 标题
+     * @param content 内容
+     */
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -131,6 +163,10 @@ public class ConnectionDialogController {
         alert.showAndWait();
     }
 
+    /**
+     * 设置所有控件的禁用状态
+     * @param disabled 是否禁用
+     */
     private void setControlsDisabled(boolean disabled) {
         nameField.setDisable(disabled);
         hostField.setDisable(disabled);
