@@ -2,21 +2,30 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.pitayafruit.kafkadog.controller.MainController"
-            prefHeight="800.0" prefWidth="1200.0">
+            prefHeight="600.0" prefWidth="750.0">
+
     <left>
-        <VBox spacing="10" style="-fx-padding: 10;">
-            <ListView fx:id="connectionListView" VBox.vgrow="ALWAYS"/>
-            <Button text="添加连接" onAction="#showAddConnectionDialog" maxWidth="Infinity"/>
+        <VBox fx:id="leftVBox" spacing="10" style="-fx-background-color: #f0f0f0;"
+              prefWidth="250" minWidth="250">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <TreeView fx:id="connectionTreeView" VBox.vgrow="ALWAYS" />
+            <Button text="添加连接" onAction="#handleAddConnection" maxWidth="Infinity" />
         </VBox>
     </left>
+
     <center>
-        <SplitPane orientation="VERTICAL">
-            <TreeView fx:id="topicListView"/>
-            <ListView fx:id="messageListView"/>
-        </SplitPane>
+        <VBox spacing="10" style="-fx-background-color: #ffffff;">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+        </VBox>
     </center>
+
 </BorderPane>

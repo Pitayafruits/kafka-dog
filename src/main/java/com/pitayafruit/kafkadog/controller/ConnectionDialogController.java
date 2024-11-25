@@ -1,10 +1,7 @@
-/**
- * Kafka连接配置对话框控制器
- * 负责处理连接配置的添加、编辑和测试功能
- */
 package com.pitayafruit.kafkadog.controller;
 
 import com.pitayafruit.kafkadog.model.KafkaConnection;
+import com.pitayafruit.kafkadog.service.ConnectionService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -125,7 +122,14 @@ public class ConnectionDialogController {
                 connection = new KafkaConnection(name, host, port);
             }
 
-            mainController.addConnection(connection);
+            // 保存连接
+            ConnectionService.saveConnection(connection);
+
+            // 通知主控制器刷新连接列表
+            if (mainController != null) {
+                mainController.refreshConnections();
+            }
+
             closeDialog();
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "错误", "端口号格式不正确");
