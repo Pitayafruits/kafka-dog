@@ -1,10 +1,7 @@
-/**
- * Kafka连接配置对话框控制器
- * 负责处理连接配置的添加、编辑和测试功能
- */
 package com.pitayafruit.kafkadog.controller;
 
 import com.pitayafruit.kafkadog.model.KafkaConnection;
+import com.pitayafruit.kafkadog.service.ConnectionService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -37,17 +34,6 @@ public class ConnectionDialogController {
      */
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
-    }
-
-    /**
-     * 设置要编辑的现有连接
-     * @param connection 现有连接对象
-     */
-    public void setConnection(KafkaConnection connection) {
-        this.existingConnection = connection;
-        nameField.setText(connection.getName());
-        hostField.setText(connection.getHost());
-        portField.setText(String.valueOf(connection.getPort()));
     }
 
     /**
@@ -96,24 +82,39 @@ public class ConnectionDialogController {
         }, Platform::runLater);
     }
 
+    public void setConnectionForEdit(KafkaConnection connection) {
+        this.existingConnection = connection;
+        // 填充表单
+        nameField.setText(connection.getName());
+        hostField.setText(connection.getHost());
+        portField.setText(String.valueOf(connection.getPort()));
+    }
+
+
     /**
      * 保存连接配置
      */
     @FXML
     private void saveConnection() {
         try {
-            String name = nameField.getText();
-            String host = hostField.getText();
-            String portText = portField.getText();
+            String name = nameField.getText().trim();  // 添加trim()去除首尾空格
+            String host = hostField.getText().trim();
+            String portText = portField.getText().trim();
 
+            // 验证输入
             if (name.isEmpty() || host.isEmpty() || portText.isEmpty()) {
                 showAlert(Alert.AlertType.ERROR, "错误", "请填写完整的连接信息");
                 return;
             }
 
+            // 验证端口号范围
             int port = Integer.parseInt(portText);
-            KafkaConnection connection;
+            if (port <= 0 || port > 65535) {
+                showAlert(Alert.AlertType.ERROR, "错误", "端口号必须在1-65535之间");
+                return;
+            }
 
+            KafkaConnection connection;
             if (existingConnection != null) {
                 // 编辑现有连接
                 existingConnection.setName(name);
@@ -125,10 +126,17 @@ public class ConnectionDialogController {
                 connection = new KafkaConnection(name, host, port);
             }
 
-            mainController.addConnection(connection);
+            // 保存连接
+            ConnectionService.saveConnection(connection);
+
+            // 通知主控制器刷新连接列表
+            if (mainController != null) {
+                mainController.refreshConnections();
+            }
+
             closeDialog();
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "错误", "端口号格式不正确");
+            showAlert(Alert.AlertType.ERROR, "错误", "端口号必须是有效的数字");
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "错误", "保存连接失败：" + e.getMessage());
         }
