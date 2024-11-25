@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import com.pitayafruit.kafkadog.service.KafkaService;
@@ -18,6 +19,7 @@ import org.apache.kafka.common.TopicPartitionInfo;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 主界面控制器类
@@ -32,19 +34,110 @@ public class MainController {
 
     private TreeItem<String> lastExpandedItem = null;
 
+    private ContextMenu connectionContextMenu;
+
     @FXML
     public void initialize() {
         loadSavedConnections();
         setupTreeViewListener();
+        setupContextMenu();
+    }
+
+    private void setupContextMenu() {
+        connectionContextMenu = new ContextMenu();
+
+        MenuItem editItem = new MenuItem("编辑");
+        editItem.setOnAction(event -> handleEditConnection());
+
+        MenuItem deleteItem = new MenuItem("删除");
+        deleteItem.setOnAction(event -> handleDeleteConnection());
+
+        connectionContextMenu.getItems().addAll(editItem, deleteItem);
     }
 
     private void setupTreeViewListener() {
         connectionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue.getParent() == connectionTreeView.getRoot()) {
-                // 如果选中的是连接节点
                 handleConnectionSelection(newValue);
             }
         });
+
+        // 添加鼠标事件监听器
+        connectionTreeView.setOnMouseClicked(event -> {
+            TreeItem<String> selectedItem = connectionTreeView.getSelectionModel().getSelectedItem();
+            if (event.getButton() == MouseButton.SECONDARY && // 右键点击
+                    selectedItem != null &&
+                    selectedItem.getParent() == connectionTreeView.getRoot()) { // 确保点击的是连接节点
+
+                connectionContextMenu.show(connectionTreeView, event.getScreenX(), event.getScreenY());
+            } else {
+                connectionContextMenu.hide();
+            }
+        });
+    }
+
+    private void handleEditConnection() {
+        TreeItem<String> selectedItem = connectionTreeView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            KafkaConnection connection = findConnectionByTreeItem(selectedItem);
+            if (connection != null) {
+                showEditDialog(connection);
+            }
+        }
+    }
+
+    private void showEditDialog(KafkaConnection connection) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/connection_dialog.fxml"));
+            Parent root = loader.load();
+
+            ConnectionDialogController controller = loader.getController();
+            controller.setMainController(this);
+            controller.setConnectionForEdit(connection); // 需要在ConnectionDialogController中添加此方法
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("编辑Kafka连接");
+            dialogStage.setResizable(false);
+            dialogStage.setScene(new Scene(root));
+
+            dialogStage.showAndWait();
+
+            // 刷新连接列表
+            loadSavedConnections();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleDeleteConnection() {
+        TreeItem<String> selectedItem = connectionTreeView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            KafkaConnection connection = findConnectionByTreeItem(selectedItem);
+            if (connection != null) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("确认删除");
+                alert.setHeaderText(null);
+                alert.setContentText("确定要删除连接 " + connection.getName() + " 吗？");
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    ConnectionService.deleteConnection(connection);
+                    loadSavedConnections();
+                }
+            }
+        }
+    }
+
+    private KafkaConnection findConnectionByTreeItem(TreeItem<String> item) {
+        String connectionStr = item.getValue();
+        List<KafkaConnection> connections = ConnectionService.loadConnections();
+        for (KafkaConnection conn : connections) {
+            if (conn.toString().equals(connectionStr)) {
+                return conn;
+            }
+        }
+        return null;
     }
 
     private void handleConnectionSelection(TreeItem<String> connectionItem) {
