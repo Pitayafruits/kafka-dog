@@ -3,6 +3,7 @@ package com.pitayafruit.kafkadog.controller;
 
 import com.pitayafruit.kafkadog.model.KafkaConnection;
 import com.pitayafruit.kafkadog.service.ConnectionService;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,12 +15,17 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import com.pitayafruit.kafkadog.service.KafkaService;
 import javafx.scene.control.*;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.common.TopicPartitionInfo;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * 主界面控制器类
@@ -154,15 +160,77 @@ public class MainController {
             List<KafkaConnection> connections = ConnectionService.loadConnections();
             for (KafkaConnection conn : connections) {
                 if (conn.toString().equals(connectionStr)) {
-                    loadTopicsForConnection(conn, connectionItem);
+                    // 异步加载主题
+                    loadTopicsAsync(conn, connectionItem);
                     break;
                 }
             }
         }
-
         // 记住当前展开的连接
         lastExpandedItem = connectionItem;
     }
+
+    private void loadTopicsAsync(KafkaConnection connection, TreeItem<String> connectionItem) {
+        // 添加加载提示
+        TreeItem<String> loadingItem = new TreeItem<>("正在加载...");
+        connectionItem.getChildren().add(loadingItem);
+
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                // 设置较短的超时时间
+                Properties props = new Properties();
+                props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+                        connection.getHost() + ":" + connection.getPort());
+                props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "3000");
+                props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "3000");
+
+                try (AdminClient adminClient = AdminClient.create(props)) {
+                    Map<String, List<TopicPartitionInfo>> topicsWithPartitions =
+                            KafkaService.getTopicsWithPartitions(connection.getHost(), connection.getPort());
+                    return topicsWithPartitions;
+                }
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        }).thenAcceptAsync(topicsWithPartitions -> {
+            // 清除加载提示
+            connectionItem.getChildren().clear();
+
+            // 添加主题和分区信息
+            for (Map.Entry<String, List<TopicPartitionInfo>> entry : topicsWithPartitions.entrySet()) {
+                TreeItem<String> topicItem = new TreeItem<>(entry.getKey());
+
+                for (TopicPartitionInfo partition : entry.getValue()) {
+                    TreeItem<String> partitionItem = new TreeItem<>(
+                            "Partition-" + partition.partition() +
+                                    " (Leader: " + partition.leader().id() + ")"
+                    );
+                    topicItem.getChildren().add(partitionItem);
+                }
+
+                connectionItem.getChildren().add(topicItem);
+            }
+        }, Platform::runLater).exceptionally(throwable -> {
+            Platform.runLater(() -> {
+                // 清除加载提示
+                connectionItem.getChildren().clear();
+
+                // 添加错误提示
+                TreeItem<String> errorItem = new TreeItem<>("连接失败: " +
+                        throwable.getCause().getMessage());
+                connectionItem.getChildren().add(errorItem);
+
+                // 可选：显示错误对话框
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("连接错误");
+                alert.setHeaderText(null);
+                alert.setContentText("无法连接到Kafka服务器: " + throwable.getCause().getMessage());
+                alert.show();
+            });
+            return null;
+        });
+    }
+
 
     private void loadSavedConnections() {
         List<KafkaConnection> connections = ConnectionService.loadConnections();
@@ -177,28 +245,6 @@ public class MainController {
         }
 
         connectionTreeView.setRoot(root);
-    }
-
-    private void loadTopicsForConnection(KafkaConnection connection, TreeItem<String> connectionItem) {
-        // 获取主题和分区信息
-        Map<String, List<TopicPartitionInfo>> topicsWithPartitions =
-                KafkaService.getTopicsWithPartitions(connection.getHost(), connection.getPort());
-
-        // 为每个主题创建节点
-        for (Map.Entry<String, List<TopicPartitionInfo>> entry : topicsWithPartitions.entrySet()) {
-            TreeItem<String> topicItem = new TreeItem<>(entry.getKey());
-
-            // 为每个分区创建子节点
-            for (TopicPartitionInfo partition : entry.getValue()) {
-                TreeItem<String> partitionItem = new TreeItem<>(
-                        "Partition-" + partition.partition() +
-                                " (Leader: " + partition.leader().id() + ")"
-                );
-                topicItem.getChildren().add(partitionItem);
-            }
-
-            connectionItem.getChildren().add(topicItem);
-        }
     }
 
     @FXML
