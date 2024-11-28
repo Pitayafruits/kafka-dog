@@ -3,6 +3,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -25,6 +29,56 @@
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="消息预览" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS" />
+                <ComboBox fx:id="offsetComboBox" prefWidth="150"/>
+                <Button fx:id="refreshButton" text="刷新" onAction="#handleRefreshMessages"/>
+            </HBox>
+
+            <TableView fx:id="messageTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="offsetColumn" prefWidth="80" text="Offset">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="offset"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="timestampColumn" prefWidth="150" text="时间">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="timestamp"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="keyColumn" prefWidth="100" text="Key">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="key"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="valueColumn" prefWidth="320" text="Value">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="value"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="consumedColumn" prefWidth="80" text="状态">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="consumed"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+            </TableView>
+
+            <HBox spacing="10" alignment="CENTER">
+                <Label text="每页显示:" />
+                <ComboBox fx:id="pageSizeComboBox" prefWidth="100" />
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox spacing="5" alignment="CENTER">
+                    <Button fx:id="prevButton" text="上一页" onAction="#handlePrevPage" />
+                    <Label text="第" />
+                    <Label fx:id="currentPageLabel" text="1" />
+                    <Label text="页" />
+                    <Button fx:id="nextButton" text="下一页" onAction="#handleNextPage" />
+                </HBox>
+            </HBox>
         </VBox>
     </center>
 
