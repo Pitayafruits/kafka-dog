@@ -11,33 +11,35 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.pitayafruit.kafkadog.controller.MainController"
-            prefHeight="600.0" prefWidth="750.0">
+            prefHeight="600.0" prefWidth="750.0"
+            stylesheets="@/css/arco-theme.css">
 
     <left>
-        <VBox fx:id="leftVBox" spacing="10" style="-fx-background-color: #f0f0f0;"
+        <VBox fx:id="leftVBox" spacing="10" styleClass="left-vbox"
               prefWidth="250" minWidth="250">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
             <TreeView fx:id="connectionTreeView" VBox.vgrow="ALWAYS" />
-            <Button text="添加连接" onAction="#handleAddConnection" maxWidth="Infinity" />
+            <Button text="添加连接" onAction="#handleAddConnection" maxWidth="Infinity"
+                    styleClass="primary"/>
         </VBox>
     </left>
 
     <center>
-        <VBox spacing="10" style="-fx-background-color: #ffffff;">
+        <VBox spacing="10">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
 
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="消息预览" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <Label text="消息预览" styleClass="title,heading" />
                 <Region HBox.hgrow="ALWAYS" />
                 <ComboBox fx:id="offsetComboBox" prefWidth="150"/>
                 <Button fx:id="refreshButton" text="刷新" onAction="#handleRefreshMessages"/>
             </HBox>
 
-            <TableView fx:id="messageTable" VBox.vgrow="ALWAYS">
+            <TableView fx:id="messageTable" VBox.vgrow="ALWAYS" styleClass="message-table">
                 <columns>
                     <TableColumn fx:id="offsetColumn" prefWidth="80" text="Offset">
                         <cellValueFactory>
@@ -67,16 +69,18 @@
                 </columns>
             </TableView>
 
-            <HBox spacing="10" alignment="CENTER">
-                <Label text="每页显示:" />
+            <HBox spacing="10" alignment="CENTER" styleClass="pagination-box">
+                <Label text="每页显示:" styleClass="secondary"/>
                 <ComboBox fx:id="pageSizeComboBox" prefWidth="100" />
                 <Region HBox.hgrow="ALWAYS" />
                 <HBox spacing="5" alignment="CENTER">
-                    <Button fx:id="prevButton" text="上一页" onAction="#handlePrevPage" />
-                    <Label text="第" />
+                    <Button fx:id="prevButton" text="上一页"
+                            onAction="#handlePrevPage" styleClass="page-button"/>
+                    <Label text="第" styleClass="secondary"/>
                     <Label fx:id="currentPageLabel" text="1" />
-                    <Label text="页" />
-                    <Button fx:id="nextButton" text="下一页" onAction="#handleNextPage" />
+                    <Label text="页" styleClass="secondary"/>
+                    <Button fx:id="nextButton" text="下一页"
+                            onAction="#handleNextPage" styleClass="page-button"/>
                 </HBox>
             </HBox>
         </VBox>
