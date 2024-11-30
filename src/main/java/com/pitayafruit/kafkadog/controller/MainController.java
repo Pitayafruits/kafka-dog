@@ -30,6 +30,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
+
 
 /**
  * 主界面控制器类
@@ -329,8 +332,9 @@ public class MainController {
             List<KafkaConnection> connections = ConnectionService.loadConnections();
             for (KafkaConnection conn : connections) {
                 if (conn.toString().equals(connectionStr)) {
-                    // 异步加载主题
-                    loadTopicsAsync(conn, connectionItem);
+                    // 异步加载主题的同时更新图标
+                    ImageView loadingIcon = (ImageView) connectionItem.getGraphic();
+                    loadTopicsAsync(conn, connectionItem, loadingIcon);
                     break;
                 }
             }
@@ -339,7 +343,8 @@ public class MainController {
         lastExpandedItem = connectionItem;
     }
 
-    private void loadTopicsAsync(KafkaConnection connection, TreeItem<String> connectionItem) {
+    private void loadTopicsAsync(KafkaConnection connection, TreeItem<String> connectionItem,
+                                 ImageView iconView) {
         // 添加加载提示
         TreeItem<String> loadingItem = new TreeItem<>("正在加载...");
         connectionItem.getChildren().add(loadingItem);
@@ -365,6 +370,12 @@ public class MainController {
             // 清除加载提示
             connectionItem.getChildren().clear();
 
+            // 更新连接状态图标为成功
+            Platform.runLater(() -> {
+                Image successImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/kafka-success.png")));
+                iconView.setImage(successImage);
+            });
+
             // 添加主题和分区信息
             for (Map.Entry<String, List<TopicPartitionInfo>> entry : topicsWithPartitions.entrySet()) {
                 TreeItem<String> topicItem = new TreeItem<>(entry.getKey());
@@ -383,6 +394,11 @@ public class MainController {
             Platform.runLater(() -> {
                 // 清除加载提示
                 connectionItem.getChildren().clear();
+
+                // 更新连接状态图标为失败
+                Image failImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/kafka-fail.png")));
+                iconView.setImage(failImage);
+
 
                 // 添加错误提示
                 TreeItem<String> errorItem = new TreeItem<>("连接失败: " +
@@ -406,9 +422,20 @@ public class MainController {
         TreeItem<String> root = new TreeItem<>();
         connectionTreeView.setShowRoot(false);
 
+        // 加载图片
+        Image successImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/kafka-success.png")));
+        Image failImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/kafka-fail.png")));
+
+
         // 为每个连接创建节点
         for (KafkaConnection connection : connections) {
-            TreeItem<String> connectionItem = new TreeItem<>(connection.toString());
+            // 创建带有图标的 TreeItem
+            ImageView iconView = new ImageView(failImage); // 默认使用未连接状态的图标
+            iconView.setFitHeight(18);
+            iconView.setFitWidth(18);
+
+            TreeItem<String> connectionItem = new TreeItem<>(connection.toString(), iconView);
+
             connectionItem.setExpanded(false);  // 默认收起
             root.getChildren().add(connectionItem);
         }

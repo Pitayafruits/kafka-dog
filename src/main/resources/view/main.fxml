@@ -11,7 +11,7 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.pitayafruit.kafkadog.controller.MainController"
-            prefHeight="600.0" prefWidth="750.0"
+            prefHeight="600.0" prefWidth="900.0"
             stylesheets="@/css/arco-theme.css">
 
     <left>
@@ -46,17 +46,17 @@
                             <PropertyValueFactory property="offset"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn fx:id="timestampColumn" prefWidth="150" text="时间">
+                    <TableColumn fx:id="timestampColumn" prefWidth="180" text="时间">
                         <cellValueFactory>
                             <PropertyValueFactory property="timestamp"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn fx:id="keyColumn" prefWidth="100" text="Key">
+                    <TableColumn fx:id="keyColumn" prefWidth="150" text="Key">
                         <cellValueFactory>
                             <PropertyValueFactory property="key"/>
                         </cellValueFactory>
                     </TableColumn>
-                    <TableColumn fx:id="valueColumn" prefWidth="320" text="Value">
+                    <TableColumn fx:id="valueColumn" prefWidth="435" text="Value">
                         <cellValueFactory>
                             <PropertyValueFactory property="value"/>
                         </cellValueFactory>
