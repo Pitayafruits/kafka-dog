@@ -7,23 +7,25 @@
 <GridPane xmlns="http://javafx.com/javafx"
           xmlns:fx="http://javafx.com/fxml"
           fx:controller="com.pitayafruit.kafkadog.controller.ConnectionDialogController"
+          stylesheets="@/css/arco-theme.css"
+          styleClass="dialog-pane"
           vgap="10" hgap="10">
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="连接名称:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <Label text="连接名称:" styleClass="secondary" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
     <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-    <Label text="主机地址:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Label text="主机地址:" styleClass="secondary" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
     <TextField fx:id="hostField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-    <Label text="端口号:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+    <Label text="端口号:" styleClass="secondary" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
     <TextField fx:id="portField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
     <HBox spacing="10" GridPane.rowIndex="3" GridPane.columnIndex="1">
         <Button fx:id="testButton" text="测试连接" onAction="#testConnection"/>
-        <Button fx:id="saveButton" text="保存" onAction="#saveConnection"/>
+        <Button fx:id="saveButton" text="保存" onAction="#saveConnection" styleClass="primary"/>
         <Button fx:id="cancelButton" text="取消" onAction="#cancel"/>
     </HBox>
 </GridPane>

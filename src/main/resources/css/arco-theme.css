@@ -1,0 +1,216 @@
+/* 全局变量定义 */
+* {
+    -arco-primary: #165DFF;
+    -arco-bg-1: #FFFFFF;
+    -arco-bg-2: #F7F8FA;
+    -arco-border: #E5E6EB;
+    -arco-text-1: #1D2129;
+    -arco-text-2: #4E5969;
+    -arco-text-3: #86909C;
+    -arco-hover: #E5E6EB;
+    -arco-radius: 4px;
+    -fx-font-family: "Microsoft YaHei", "PingFang SC";
+}
+
+/* 主窗口样式 */
+.root {
+    -fx-background-color: -arco-bg-1;
+}
+
+/* 左侧导航区域样式 */
+.left-vbox {
+    -fx-background-color: -arco-bg-2;
+    -fx-border-color: -arco-border;
+    -fx-border-width: 0 1 0 0;
+}
+
+/* TreeView样式 */
+.tree-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.tree-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8 10;
+    -fx-text-fill: -arco-text-1;
+}
+
+.tree-cell:selected {
+    -fx-background-color: derive(-arco-primary, 90%);
+    -fx-text-fill: -arco-primary;
+}
+
+.tree-cell:hover {
+    -fx-background-color: -arco-hover;
+}
+
+/* 按钮样式 */
+.button {
+    -fx-background-color: -arco-bg-1;
+    -fx-border-color: -arco-border;
+    -fx-text-fill: -arco-text-1;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-padding: 6 16;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: -arco-hover;
+}
+
+.button.primary {
+    -fx-background-color: -arco-primary;
+    -fx-border-color: -arco-primary;
+    -fx-text-fill: white;
+}
+
+.button.primary:hover {
+    -fx-background-color: derive(-arco-primary, 10%);
+    -fx-border-color: derive(-arco-primary, 10%);
+}
+
+/* TableView样式 */
+.table-view {
+    -fx-background-color: -arco-bg-1;
+    -fx-border-color: -arco-border;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.table-view .column-header {
+    -fx-background-color: -arco-bg-2;
+    -fx-padding: 8;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -arco-bg-2;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: -arco-bg-1;
+    -fx-border-color: transparent -arco-border transparent -arco-border;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: -arco-bg-2;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: derive(-arco-primary, 95%);
+}
+
+/* ComboBox样式 */
+.combo-box {
+    -fx-background-color: -arco-bg-1;
+    -fx-border-color: -arco-border;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.combo-box:hover {
+    -fx-border-color: -arco-primary;
+}
+
+/* TextField样式 */
+.text-field {
+    -fx-background-color: -arco-bg-1;
+    -fx-border-color: -arco-border;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-padding: 6 12;
+}
+
+.text-field:focused {
+    -fx-border-color: -arco-primary;
+}
+
+/* 标签样式 */
+.label {
+    -fx-text-fill: -arco-text-1;
+}
+
+.label.secondary {
+    -fx-text-fill: -arco-text-2;
+}
+
+/* 分页控件样式 */
+.pagination-box {
+    -fx-spacing: 8;
+    -fx-alignment: center;
+}
+
+.page-button {
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+    -fx-padding: 0;
+}
+
+/* 滚动条样式 */
+.scroll-bar {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -arco-text-3;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: -arco-text-2;
+}
+
+/* 标题样式 */
+.heading {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
+}
+
+/* 消息表格特定样式 */
+.message-table {
+    -fx-font-size: 13px;
+}
+
+.message-table .table-column {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 8 15;
+}
+
+/* 对话框样式 */
+.dialog-pane {
+    -fx-background-color: -arco-bg-1;
+}
+
+.dialog-pane .text-field {
+    -fx-pref-width: 250px;
+}
+
+/* 分页按钮特定样式 */
+.page-button {
+    -fx-min-width: 80px;
+}
+
+/* ComboBox下拉列表样式 */
+.combo-box-popup .list-view {
+    -fx-background-color: -arco-bg-1;
+    -fx-border-color: -arco-border;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.combo-box-popup .list-cell {
+    -fx-padding: 6 12;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -arco-bg-2;
+}
+
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: derive(-arco-primary, 90%);
+    -fx-text-fill: -arco-primary;
+}

@@ -17,7 +17,7 @@ public class MainApp extends Application {
         primaryStage.setTitle("Kafka Dog");
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/icon.png")));
         primaryStage.getIcons().add(icon);
-        primaryStage.setScene(new Scene(root, 1000, 600));
+        primaryStage.setScene(new Scene(root, 1200, 650));
         primaryStage.show();
     }
 
