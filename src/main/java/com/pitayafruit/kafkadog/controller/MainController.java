@@ -141,8 +141,25 @@ public class MainController {
         });
         keyColumn.setCellValueFactory(new PropertyValueFactory<>("key"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+
+        // 保持String类型，但添加样式
         consumedColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().isConsumed() ? "已消费" : "未消费"));
+        consumedColumn.setCellFactory(column -> new TableCell<KafkaMessage, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                    getStyleClass().removeAll("status-consumed", "status-unconsumed");
+                } else {
+                    setText(item);
+                    getStyleClass().removeAll("status-consumed", "status-unconsumed");
+                    getStyleClass().add(item.equals("已消费") ? "status-consumed" : "status-unconsumed");
+                }
+            }
+        });
     }
 
     private void handlePartitionSelection(TreeItem<String> partitionItem) {
