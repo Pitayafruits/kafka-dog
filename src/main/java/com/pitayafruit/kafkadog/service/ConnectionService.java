@@ -18,8 +18,12 @@ import java.util.UUID;
 public class ConnectionService {
 
     /**
-     * 连接配置文件路径
-     * 用于存储所有Kafka连接配置的JSON文件
+     * 应用程序名称
+     */
+    private static final String APP_NAME = "KafkaDog";
+
+    /**
+     * 配置文件名称
      */
     private static final String CONNECTIONS_FILE = "connections.json";
 
@@ -30,12 +34,42 @@ public class ConnectionService {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     /**
+     * 获取配置文件路径
+     * Windows: C:/Users/{username}/AppData/Local/KafkaDog/connections.json
+     * macOS: /Users/{username}/Library/Application Support/KafkaDog/connections.json
+     *
+     * @return 配置文件对象
+     */
+    private static File getConfigFile() {
+        String userHome = System.getProperty("user.home");
+        String configDir;
+
+        // 根据操作系统选择配置目录
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            // Windows系统
+            configDir = userHome + "/AppData/Local/" + APP_NAME;
+        } else {
+            // macOS系统
+            configDir = userHome + "/Library/Application Support/" + APP_NAME;
+        }
+
+        // 确保配置目录存在
+        File directory = new File(configDir);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        return new File(directory, CONNECTIONS_FILE);
+    }
+
+
+    /**
      * 将连接配置列表保存到文件
      * @param connections 要保存的连接配置列表
      */
     public static void saveConnections(List<KafkaConnection> connections) {
         try {
-            mapper.writeValue(new File(CONNECTIONS_FILE), connections);
+            mapper.writeValue(getConfigFile(), connections);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,10 +81,9 @@ public class ConnectionService {
      */
     public static List<KafkaConnection> loadConnections() {
         try {
-            File file = new File(CONNECTIONS_FILE);
+            File file = getConfigFile();
             if (file.exists()) {
-                return mapper.readValue(file, new TypeReference<>() {
-                });
+                return mapper.readValue(file, new TypeReference<>() {});
             }
         } catch (IOException e) {
             e.printStackTrace();
