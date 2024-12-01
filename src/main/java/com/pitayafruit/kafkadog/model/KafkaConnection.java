@@ -2,6 +2,7 @@ package com.pitayafruit.kafkadog.model;
 
 /**
  * Kafka连接配置实体类
+ * 用于存储和管理Kafka服务器的连接信息
  */
 public class KafkaConnection {
 

@@ -13,16 +13,19 @@ import java.util.UUID;
 /**
  * Kafka连接管理服务类
  * 负责Kafka连接配置的持久化存储和管理
+ * 包括连接的保存、加载、删除等操作
  */
 public class ConnectionService {
 
     /**
-     * 存储连接配置的JSON文件名
+     * 连接配置文件路径
+     * 用于存储所有Kafka连接配置的JSON文件
      */
     private static final String CONNECTIONS_FILE = "connections.json";
 
     /**
      * JSON对象映射器
+     * 用于处理连接配置的序列化和反序列化
      */
     private static final ObjectMapper mapper = new ObjectMapper();
 
