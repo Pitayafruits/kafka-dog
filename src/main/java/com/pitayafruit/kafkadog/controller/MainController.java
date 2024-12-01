@@ -235,19 +235,25 @@ public class MainController {
 
     private void setupTreeViewListener() {
         connectionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue.getParent() == connectionTreeView.getRoot()) {
-                handleConnectionSelection(newValue);
+            if (newValue != null && newValue.getParent() != null
+                    && newValue.getParent().getParent() != null
+                    && newValue.getValue().startsWith("Partition-")) {
+                handlePartitionSelection(newValue);
             }
         });
 
-        // 添加鼠标事件监听器
+        // 修改鼠标事件监听器
         connectionTreeView.setOnMouseClicked(event -> {
             TreeItem<String> selectedItem = connectionTreeView.getSelectionModel().getSelectedItem();
-            if (event.getButton() == MouseButton.SECONDARY && // 右键点击
-                    selectedItem != null &&
-                    selectedItem.getParent() == connectionTreeView.getRoot()) { // 确保点击的是连接节点
-
-                connectionContextMenu.show(connectionTreeView, event.getScreenX(), event.getScreenY());
+            if (selectedItem != null && selectedItem.getParent() == connectionTreeView.getRoot()) {
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    // 右键点击显示菜单
+                    connectionContextMenu.show(connectionTreeView, event.getScreenX(), event.getScreenY());
+                } else if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                    // 左键双击重新加载
+                    loadTopicsAsync(findConnectionByTreeItem(selectedItem), selectedItem,
+                            (ImageView) selectedItem.getGraphic());
+                }
             } else {
                 connectionContextMenu.hide();
             }
@@ -345,34 +351,29 @@ public class MainController {
 
     private void loadTopicsAsync(KafkaConnection connection, TreeItem<String> connectionItem,
                                  ImageView iconView) {
+        if (connection == null) return;
+
+        // 清空现有节点
+        connectionItem.getChildren().clear();
+
         // 添加加载提示
         TreeItem<String> loadingItem = new TreeItem<>("正在加载...");
         connectionItem.getChildren().add(loadingItem);
 
         CompletableFuture.supplyAsync(() -> {
             try {
-                // 设置较短的超时时间
-                Properties props = new Properties();
-                props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
-                        connection.getHost() + ":" + connection.getPort());
-                props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "3000");
-                props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "3000");
-
-                try (AdminClient adminClient = AdminClient.create(props)) {
-                    Map<String, List<TopicPartitionInfo>> topicsWithPartitions =
-                            KafkaService.getTopicsWithPartitions(connection.getHost(), connection.getPort());
-                    return topicsWithPartitions;
-                }
+                return KafkaService.getTopicsWithPartitions(connection.getHost(), connection.getPort());
             } catch (Exception e) {
                 throw new CompletionException(e);
             }
         }).thenAcceptAsync(topicsWithPartitions -> {
-            // 清除加载提示
+            // 清空所有子节点(包括加载提示)
             connectionItem.getChildren().clear();
 
             // 更新连接状态图标为成功
             Platform.runLater(() -> {
-                Image successImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/kafka-success.png")));
+                Image successImage = new Image(Objects.requireNonNull(getClass()
+                        .getResourceAsStream("/icons/kafka-success.png")));
                 iconView.setImage(successImage);
             });
 
@@ -392,24 +393,25 @@ public class MainController {
             }
         }, Platform::runLater).exceptionally(throwable -> {
             Platform.runLater(() -> {
-                // 清除加载提示
+                // 清空所有子节点(包括加载提示)
                 connectionItem.getChildren().clear();
 
                 // 更新连接状态图标为失败
-                Image failImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/kafka-fail.png")));
+                Image failImage = new Image(Objects.requireNonNull(getClass()
+                        .getResourceAsStream("/icons/kafka-fail.png")));
                 iconView.setImage(failImage);
 
-
-                // 添加错误提示
+                // 添加错误提示节点
                 TreeItem<String> errorItem = new TreeItem<>("连接失败: " +
-                        throwable.getCause().getMessage());
+                        throwable.getCause().getMessage() + " (双击重试)");
                 connectionItem.getChildren().add(errorItem);
 
-                // 可选：显示错误对话框
+                // 显示错误提示
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("连接错误");
                 alert.setHeaderText(null);
-                alert.setContentText("无法连接到Kafka服务器: " + throwable.getCause().getMessage());
+                alert.setContentText("无法连接到Kafka服务器: " + throwable.getCause().getMessage() +
+                        "\n提示：双击连接可重试");
                 alert.show();
             });
             return null;
