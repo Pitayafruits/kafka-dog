@@ -13,8 +13,7 @@ Kafka Dog 是一个轻量级的 Apache Kafka 可视化管理工具，提供直�
 
 ## 🖥 支持环境
 
-- Windows、macOS
-- 预装 Java 17 或更高版本
+- Windows
 
 ## 📦 安装与使用
 
