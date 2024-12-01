@@ -18,8 +18,10 @@ public class KafkaService {
         props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "3000");
 
         Map<String, List<TopicPartitionInfo>> result = new HashMap<>();
+        AdminClient adminClient = null;
 
-        try (AdminClient adminClient = AdminClient.create(props)) {
+        try {
+            adminClient = AdminClient.create(props);
             // 获取所有主题
             ListTopicsResult topics = adminClient.listTopics();
             Set<String> topicNames = topics.names().get(3, TimeUnit.SECONDS);
@@ -33,7 +35,11 @@ public class KafkaService {
                         .get(topicName).get(3, TimeUnit.SECONDS);
                 result.put(topicName, topicDescription.partitions());
             }
+            return result;
+        } finally {
+            if (adminClient != null) {
+                adminClient.close();
+            }
         }
-        return result;
     }
 }

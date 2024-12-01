@@ -19,8 +19,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import com.pitayafruit.kafkadog.service.KafkaService;
 import javafx.scene.control.*;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.common.TopicPartitionInfo;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -234,25 +232,23 @@ public class MainController {
     }
 
     private void setupTreeViewListener() {
-        connectionTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue.getParent() != null
-                    && newValue.getParent().getParent() != null
-                    && newValue.getValue().startsWith("Partition-")) {
-                handlePartitionSelection(newValue);
-            }
-        });
-
-        // 修改鼠标事件监听器
         connectionTreeView.setOnMouseClicked(event -> {
             TreeItem<String> selectedItem = connectionTreeView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null && selectedItem.getParent() == connectionTreeView.getRoot()) {
-                if (event.getButton() == MouseButton.SECONDARY) {
-                    // 右键点击显示菜单
-                    connectionContextMenu.show(connectionTreeView, event.getScreenX(), event.getScreenY());
-                } else if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                    // 左键双击重新加载
-                    loadTopicsAsync(findConnectionByTreeItem(selectedItem), selectedItem,
-                            (ImageView) selectedItem.getGraphic());
+            if (selectedItem != null) {
+                if (selectedItem.getParent() == connectionTreeView.getRoot()) {
+                    // 连接节点的处理
+                    if (event.getButton() == MouseButton.SECONDARY) {
+                        // 右键点击显示菜单
+                        connectionContextMenu.show(connectionTreeView, event.getScreenX(), event.getScreenY());
+                    } else if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                        // 双击重新加载连接
+                        loadTopicsAsync(findConnectionByTreeItem(selectedItem), selectedItem,
+                                (ImageView) selectedItem.getGraphic());
+                    }
+                } else if (selectedItem.getParent().getParent() == connectionTreeView.getRoot()
+                        && event.getButton() == MouseButton.PRIMARY) {
+                    // topic节点的处理：单击就展开
+                    selectedItem.setExpanded(!selectedItem.isExpanded());
                 }
             } else {
                 connectionContextMenu.hide();
@@ -391,6 +387,12 @@ public class MainController {
 
                 connectionItem.getChildren().add(topicItem);
             }
+
+            // 连接成功后自动展开节点
+            Platform.runLater(() -> {
+                connectionItem.setExpanded(true);
+            });
+
         }, Platform::runLater).exceptionally(throwable -> {
             Platform.runLater(() -> {
                 // 清空所有子节点(包括加载提示)
@@ -400,19 +402,6 @@ public class MainController {
                 Image failImage = new Image(Objects.requireNonNull(getClass()
                         .getResourceAsStream("/icons/kafka-fail.png")));
                 iconView.setImage(failImage);
-
-                // 添加错误提示节点
-                TreeItem<String> errorItem = new TreeItem<>("连接失败: " +
-                        throwable.getCause().getMessage() + " (双击重试)");
-                connectionItem.getChildren().add(errorItem);
-
-                // 显示错误提示
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("连接错误");
-                alert.setHeaderText(null);
-                alert.setContentText("无法连接到Kafka服务器: " + throwable.getCause().getMessage() +
-                        "\n提示：双击连接可重试");
-                alert.show();
             });
             return null;
         });
