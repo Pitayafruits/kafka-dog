@@ -15,10 +15,12 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Kafka连接配置对话框控制器
+ * 负责处理连接配置的添加和编辑界面的交互逻辑
+ */
 public class ConnectionDialogController {
-    /**
-     * FXML注入的UI组件
-     */
+
     @FXML private TextField nameField;    // 连接名称输入框
     @FXML private TextField hostField;    // 主机地址输入框
     @FXML private TextField portField;    // 端口号输入框
@@ -26,8 +28,8 @@ public class ConnectionDialogController {
     @FXML private Button saveButton;      // 保存按钮
     @FXML private Button cancelButton;    // 取消按钮
 
-    private MainController mainController;         // 主控制器引用
-    private KafkaConnection existingConnection;    // 当前编辑的已存在连接
+    private MainController mainController;       // 主控制器引用
+    private KafkaConnection existingConnection;   // 当前编辑的已存在连接
 
     /**
      * 设置主控制器引用

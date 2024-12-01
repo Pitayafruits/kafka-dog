@@ -15,7 +15,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/main.fxml")));
         primaryStage.setTitle("Kafka Dog");
-        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/icon.png")));
+        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/app.png")));
         primaryStage.getIcons().add(icon);
         primaryStage.setScene(new Scene(root, 1200, 650));
         primaryStage.show();

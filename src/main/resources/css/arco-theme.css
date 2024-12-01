@@ -214,3 +214,11 @@
     -fx-background-color: derive(-arco-primary, 90%);
     -fx-text-fill: -arco-primary;
 }
+
+.status-unconsumed {
+    -fx-text-fill: #ff9800;  /* 橙色 */
+}
+
+.status-consumed {
+    -fx-text-fill: #4caf50;  /* 绿色 */
+}
