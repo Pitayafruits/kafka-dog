@@ -9,7 +9,7 @@ Kafka Dog 是一个轻量级的 Apache Kafka 可视化管理工具，提供直�
 - 🔍 Topic 和分区信息可视化
 - 📊 消息查看和实时预览
 - 🎯 支持 Latest/Earliest 消息定位
-- 📦 支持 String、Avro、Protobuf 等多种数据格式（开发中）
+- 📦 支持 String、Avro、Protobuf 等多种数据格式
 
 ## 🖥 支持环境
 
