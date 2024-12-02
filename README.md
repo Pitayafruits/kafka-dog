@@ -49,7 +49,6 @@ Kafka Dog 是一个轻量级的 Apache Kafka 可视化管理工具，提供直�
 - [ ] 支持消息发送功能
 - [ ] 添加消费组管理
 - [ ] 支持 Topic 创建和配置
-- [ ] 集成 Avro Schema Registry
 - [ ] 添加消息搜索功能
 - [ ] 支持更多消息格式（JSON、XML等）
 
