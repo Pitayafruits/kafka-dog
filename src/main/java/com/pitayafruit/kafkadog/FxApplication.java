@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 import java.util.Objects;
 
-public class MainApp extends Application {
+public class FxApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -21,7 +21,5 @@ public class MainApp extends Application {
         primaryStage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+
 }
