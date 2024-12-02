@@ -22,12 +22,6 @@ Kafka Dog 是一个轻量级的 Apache Kafka 可视化管理工具，提供直�
 2. 解压到任意目录
 3. 双击运行 `KafkaDog.exe`
 
-### macOS
-1. 下载最新版本的 `KafkaDog-macos.dmg`
-2. 打开 DMG 文件
-3. 将 Kafka Dog 拖入 Applications 文件夹
-4. 从启动器中运行 Kafka Dog
-
 ## 🚀 快速入门
 
 1. 启动 Kafka Dog
