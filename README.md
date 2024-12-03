@@ -1,5 +1,7 @@
 # Kafka Dog
 
+[English](README.en.md) | [简体中文](README.md)
+
 Kafka Dog 是一个轻量级的 Apache Kafka 可视化管理工具，提供图形化界面来管理和监控 Kafka 集群。
 
 ## ✨ 特性
