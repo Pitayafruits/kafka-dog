@@ -532,6 +532,16 @@ public class MainController {
                 Image failImage = new Image(Objects.requireNonNull(getClass()
                         .getResourceAsStream("/icons/kafka-fail.png")));
                 iconView.setImage(failImage);
+
+                // 添加错误提示框
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("连接错误");
+                alert.setHeaderText(null);
+                String errorMessage = "无法连接到Kafka服务器: " +
+                        connection.getHost() + ":" + connection.getPort() +
+                        "\n请检查服务器是否正常运行";
+                alert.setContentText(errorMessage);
+                alert.show();
             });
             return null;
         });
