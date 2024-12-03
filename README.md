@@ -53,6 +53,7 @@ Kafka Dog 是一个轻量级的 Apache Kafka 可视化管理工具，提供图�
 - [ ] 支持 Topic 创建和配置
 - [ ] 添加消息搜索功能
 - [ ] 支持更多消息格式（JSON、XML等）
+- [ ] 对Mac OS的支持
 
 ## 🤝 贡献
 
