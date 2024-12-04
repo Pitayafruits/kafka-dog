@@ -4,6 +4,7 @@
 
 Kafka Dog is a lightweight desktop application for visualizing and managing Apache Kafka. It provides a user-friendly graphical interface for managing and monitoring Kafka clusters.
 
+
 ## ✨ Features
 
 - 🚀 Native desktop client, simple and easy to use
