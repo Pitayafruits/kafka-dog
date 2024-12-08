@@ -1,76 +1,76 @@
 # Kafka Dog
 
-[English](README.en.md) | [简体中文](README.md)
+[English](README.md) | [简体中文](README.ch.md)
 
-Kafka Dog 是一款轻量级的 Apache Kafka 可视化管理桌面应用，提供友好的图形化界面，用于管理和监控 Kafka 集群。
+Kafka Dog is a lightweight Apache Kafka visualization management tool that provides a graphical interface for managing and monitoring Kafka clusters.
 
-## ✨ 特性
+## ✨ Features
 
-- 🚀 原生桌面客户端，简单易用
-- 📝 支持多连接配置管理
-- 🔍 Topic 和分区信息可视化
-- 📊 消息查看和实时预览
-- 🎯 支持 Latest/Earliest 消息定位
-- 📦 支持 String、Avro、Protobuf 等多种数据格式
+- 🚀 Native desktop client, simple and easy to use
+- 📝 Support for multiple connection configuration management
+- 🔍 Topic and partition information visualization
+- 📊 Message viewing and real-time preview
+- 🎯 Support for Latest/Earliest message positioning
+- 📦 Support for multiple data formats including String, Avro, Protobuf
 
-## 🖥 支持环境
+## 🖥 Supported Platforms
 
 - Windows
 
-## 📦 安装与使用
+## 📦 Installation & Usage 
 
 ### Windows
-1. 下载最新版本的 `KafkaDog-windows-x64.zip`
-2. 解压到任意目录
-3. 双击运行 `KafkaDog.exe`
+1.Download the latest version of `KafkaDog-windows-x64.zip`
+2.Extract to any directory
+3.Double-click to run `KafkaDog.exe`
 
-## 🚀 快速入门
+## 🚀 Quick Start
 
-1. 启动 Kafka Dog
-2. 点击左下角的"添加连接"按钮
-3. 在弹出的对话框中填写：
-    - 连接名称（用于标识不同的连接）
-    - Kafka 服务器地址
-    - 端口号（默认 9092）
-4. 点击"测试连接"确认连接是否可用
-5. 连接成功后点击"保存"
-6. 在左侧面板中：
-    - 双击连接名称加载 Topic 列表
-    - 展开 Topic 查看分区信息
-    - 点击具体分区查看消息内容
-7. 在右侧面板中：
-    - 选择 Latest/Earliest 切换消息位置
-    - 使用分页控件浏览更多消息
+1. Launch Kafka Dog
+2. Click the "Add Connection" button in the bottom left corner
+3. In the popup dialog, fill in:
+    - Connection name (to identify different connections)
+    - Kafka server address
+    - Port number (default 9092)
+4. Click "Test Connection" to verify connectivity
+5. Click "Save" after successful connection
+6. In the left panel:
+    - Double-click connection name to load Topic list
+    - Expand Topic to view partition information
+    - Click specific partition to view message content
+7. In the right panel:
+    - Select Latest/Earliest to switch message position
+    - Use pagination controls to browse more messages
 
-## 📸 界面
+## 📸 Interface
 
 ![主界面](./images/main.png)
 
-## 🔨 开发计划
+## 🔨 Development Plans
+- [ ]  Add message sending functionality
+- [ ] Add consumer group management
+- [ ] Support Topic creation and configuration
+- [ ] Add message search functionality
+- [ ] Support more message formats (JSON, XML, etc.)
 
-- [ ] 支持消息发送功能
-- [ ] 添加消费组管理
-- [ ] 支持 Topic 创建和配置
-- [ ] 添加消息搜索功能
-- [ ] 支持更多消息格式（JSON、XML等）
-- [ ] 对 Mac OS 的支持
+## 🤝 Contributing
 
-## 🤝 贡献
-
-如果你想为 Kafka Dog 贡献代码，欢迎提交 Pull Request 和 Issue！
+If you want to contribute code to Kafka Dog, Pull Requests and Issues are welcome!
 
 
-## 📄 开源许可
+## 📄 License
 
-Kafka Dog 使用 [MIT 许可证](./LICENSE)。
+Kafka Dog is licensed under the [MIT License](./LICENSE).
 
-## 🙏 鸣谢
+## 🙏 Acknowledgments
 
 - [Apache Kafka](https://kafka.apache.org/)
 - [JavaFX](https://openjfx.io/)
 - [OpenJDK](https://openjdk.java.net/)
 
-## 📧 联系方式
+## 📧 Contact
 
-- 作者：[Pitayafruits](https://github.com/Pitayafruits)
+- Author：[Pitayafruits](https://github.com/Pitayafruits)
 - Email：[pitaya.cc@qq.com]()
+
+
